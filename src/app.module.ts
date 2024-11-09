@@ -27,6 +27,9 @@ import { UserToRolesModule } from './userToRoles/userToRoles.module';
         database: configService.get<string>('DB_NAME'),
         autoLoadEntities: true,
         synchronize: false, // Avoid this in production, use migrations instead
+        ssl: {
+          rejectUnauthorized: false, // Set this to false if you encounter SSL certificate issues
+        },
       }),
       inject: [ConfigService],
     }),
