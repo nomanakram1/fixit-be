@@ -1,9 +1,19 @@
-import { ApiProperty } from '@nestjs/swagger';
-
+// dto/create-user.dto.ts
 export class CreateUserDto {
-  @ApiProperty({ example: 'John Doe', description: 'The name of the user' })
-  name: string;
-
-  @ApiProperty({ example: 'john@example.com', description: 'The email of the user' })
+  username: string;
   email: string;
+  password: string;
+  firstName?: string;
+  lastName?: string;
+  phoneNumber?: string;
+}
+
+// dto/update-user.dto.ts
+export class UpdateUserDto {
+  username?: string;
+  email?: string;
+  firstName?: string;
+  lastName?: string;
+  phoneNumber?: string;
+  isActive?: boolean;
 }

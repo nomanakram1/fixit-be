@@ -1,10 +1,10 @@
-import { AuthProvidersEnum } from "src/auth/auth-providers.enum";
-import { Column, CreateDateColumn, DeleteDateColumn, Entity, Index, JoinColumn, ManyToOne, OneToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import { AuthProvidersEnum } from "../../auth/enum/auth-providers.enum";
+import { UserDetailsEntity } from "../../userDetails/entity/userDetails.entity";
+import { UserToRoleEntity } from "../../userToRoles/entity/userToRoles.entity";
+import { Column, CreateDateColumn, DeleteDateColumn, Entity, Index, JoinColumn, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 
-@Entity({
-  name: 'user',
-})
-export class UserEntity {
+@Entity({ name: 'user' })
+export class UsersEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
@@ -25,15 +25,6 @@ export class UserEntity {
   @Column({ type: String, nullable: true })
   socialId?: string | null;
 
-  @Column({ type: String, nullable: true, length: 50 })
-  firstName: string | null;
-
-  @Column({ type: String, nullable: true, length: 50 })
-  lastName: string | null;
-
-  @Column({ type: 'varchar', length: 20, nullable: true })
-  phoneNumber: string;
-
   @Column({ type: 'enum', enum: ['customer', 'professional'], nullable: true })
   userType: string;
 
@@ -43,6 +34,15 @@ export class UserEntity {
   @Column({ default: true })
   isActive: boolean;
 
+  @Column({ default: false })
+  isPhoneVerified: boolean; // Boolean flag for phone verification status
+
+  @Column({ nullable: true })
+  verificationCode: string | null; // Store OTP for verification
+
+  @Column({ nullable: true })
+  verificationCodeExpiresAt: Date | null; // Expiration time for OTP
+
   @CreateDateColumn()
   createdAt: Date;
 
@@ -51,4 +51,13 @@ export class UserEntity {
 
   @DeleteDateColumn()
   deletedAt: Date;
+
+  @OneToMany(() => UserToRoleEntity, userToRole => userToRole.user)
+  @JoinColumn()
+  userRoles: UserToRoleEntity[];
+
+  @OneToOne(() => UserDetailsEntity, details => details.user)
+  @JoinColumn()
+  details: UserDetailsEntity;
+
 }
