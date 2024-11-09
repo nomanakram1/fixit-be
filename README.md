@@ -4,7 +4,7 @@ cp env-example-relational .env
 <!-- to Install dependency -->
 npm install
 <!-- to Genrate migrations -->
-npm run migration:generate -- src/database/migrations/<!-- name here -->
+npm run migration:generate
 <!-- to Run migrations -->
 npm run migration:run
 <!-- to Revert migration -->

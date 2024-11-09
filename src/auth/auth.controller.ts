@@ -8,18 +8,6 @@ import { ForgotPasswordDto, LoginDto, ResetPasswordDto, SignupDto } from './dto/
 export class AuthController {
   constructor(private authService: AuthService) {}
 
-  @Post('signup')
-  @ApiOperation({ summary: 'User signup' })
-  @ApiResponse({ status: 201, description: 'User registered successfully.' })
-  @ApiResponse({ status: 400, description: 'User already exists.' })
-  async signup(@Body() signupDto: SignupDto) {
-    try {
-      return await this.authService.signup(signupDto);
-    } catch (error) {
-      throw new BadRequestException('User already exists.');
-    }
-  }
-
   @Post('login')
   @ApiOperation({ summary: 'User login' })
   @ApiResponse({ status: 200, description: 'Login successful.' })
@@ -30,6 +18,18 @@ export class AuthController {
       throw new UnauthorizedException();
     }
     return this.authService.login(user);
+  }
+
+  @Post('signup')
+  @ApiOperation({ summary: 'User signup' })
+  @ApiResponse({ status: 201, description: 'User registered successfully.' })
+  @ApiResponse({ status: 400, description: 'User already exists.' })
+  async signup(@Body() signupDto: SignupDto) {
+    try {
+      return await this.authService.signup(signupDto);
+    } catch (error) {
+      throw new BadRequestException('User already exists.');
+    }
   }
 
   @Post('forgot-password')

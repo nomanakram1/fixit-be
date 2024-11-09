@@ -1,7 +1,7 @@
 import { Controller, Get, Post, Body, Param, Delete, UseGuards } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
 import { UserService } from './user.service';
-import { UserEntity } from './entity/user.entity';
+import { UsersEntity } from './entity/user.entity';
 import { AuthGuard } from '@nestjs/passport';
 
 @ApiTags('users') // Tag for grouping in Swagger UI
@@ -14,7 +14,7 @@ export class UserController {
   @Get()
   @ApiOperation({ summary: 'Get all users' })
   @ApiResponse({ status: 200, description: 'List of users returned successfully.' })
-  findAll(): Promise<UserEntity[]> {
+  findAll(): Promise<UsersEntity[]> {
     return this.userService.findAll();
   }
 
@@ -22,14 +22,14 @@ export class UserController {
   @ApiOperation({ summary: 'Get a user by ID' })
   @ApiResponse({ status: 200, description: 'User found.' })
   @ApiResponse({ status: 404, description: 'User not found.' })
-  findOne(@Param('id') id: string): Promise<UserEntity> {
+  findOne(@Param('id') id: string): Promise<UsersEntity> {
     return this.userService.findOne(id);
   }
 
   @Post()
   @ApiOperation({ summary: 'Create a new user' })
   @ApiResponse({ status: 201, description: 'User created successfully.' })
-  create(@Body() user: UserEntity): Promise<UserEntity> {
+  create(@Body() user: UsersEntity): Promise<UsersEntity> {
     return this.userService.create(user);
   }
 
