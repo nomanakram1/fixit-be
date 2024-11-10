@@ -14,14 +14,14 @@ export class SignupDto {
   @ApiProperty({ example: 'john_doe', description: 'The username of the user' })
   username: string;
 
-  // @ApiProperty({ example: 'strongPassword123', description: 'The password of the user' })
-  // password: string;
-
   @ApiProperty({ example: 'john@gmail.com', description: 'The email of the user' })
   email: string;
 
-  @ApiProperty({ example: '+123-1234-1234', description: 'The Phone Number of the user' })
-  phoneNumber: string;
+  @ApiProperty({ example: 'strongPassword123', description: 'The password of the user' })
+  password: string;
+  
+  // @ApiProperty({ example: '+123-1234-1234', description: 'The Phone Number of the user' })
+  // phoneNumber: string;
 
   // @ApiProperty({
   //   example: 'customer',
