@@ -96,6 +96,10 @@ export class UserService {
       throw new ConflictException('User already exists');
     }
     const otp = '12345';
+    if (signupDto.password) {
+      const salt = await bcrypt.genSalt();
+      signupDto.password = await bcrypt.hash(signupDto.password, salt);
+    }
     try {
       const newUser = await this.userRepository.save({
         ...signupDto,
