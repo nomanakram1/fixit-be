@@ -12,11 +12,14 @@ export class UsersEntity {
   @Column({ type: String, unique: true, length: 100 })
   email: string | null;
 
+  @Column({ default: false })
+  isEmailVerified: boolean;
+
   @Index()
   @Column({ type: String, unique: true, length: 100 })
   username: string | null;
 
-  @Column({ type: 'varchar', length: 255 })
+  @Column({ type: 'varchar', length: 255, nullable: true })
   password: string | undefined;
 
   @Column({ default: AuthProvidersEnum.email })
@@ -34,14 +37,17 @@ export class UsersEntity {
   @Column({ default: true })
   isActive: boolean;
 
+  @Column({ type: 'varchar', length: 20, nullable: true })
+  phoneNumber: string;
+
   @Column({ default: false })
-  isPhoneVerified: boolean; // Boolean flag for phone verification status
+  isPhoneVerified: boolean;
 
   @Column({ nullable: true })
-  verificationCode: string | null; // Store OTP for verification
+  verificationCode: string | null;
 
   @Column({ nullable: true })
-  verificationCodeExpiresAt: Date | null; // Expiration time for OTP
+  verificationCodeExpiresAt: Date | null;
 
   @CreateDateColumn()
   createdAt: Date;
