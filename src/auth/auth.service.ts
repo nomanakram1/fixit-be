@@ -28,25 +28,12 @@ export class AuthService {
   }
 
   async signup(signupDto: SignupDto): Promise<{ message: string }> {
-    const { username, email, password } = signupDto;
-
-    // Check if user already exists
-    const existingUser = await this.userService.findOneByEmail(email) || await this.userService.findOneByUsername(username);
-    if (existingUser) {
-      throw new ConflictException('User already exists');
+    try {
+      const user = await this.userService.create(signupDto);
+      return { message: 'User registered successfully.' };
+    } catch (e) {
+      throw new BadRequestException('Invalid or expired token');
     }
-
-    // Hash the password
-    const hashedPassword = await bcrypt.hash(password, 10);
-    
-    // Create and save the user
-    await this.userService.create({
-      username,
-      email,
-      password,
-    });
-
-    return { message: 'User registered successfully.' };
   }
 
   async forgotPassword(email: string): Promise<{ message: string }> {
@@ -65,7 +52,7 @@ export class AuthService {
   async resetPassword(token: string, newPassword: string): Promise<{ message: string }> {
     try {
       const decoded = this.jwtService.verify(token);
-      const user = await this.userService.findOne(decoded.sub);
+      const user = await this.userService.findUserById(decoded.sub);
       
       if (!user) {
         throw new NotFoundException('User not found');

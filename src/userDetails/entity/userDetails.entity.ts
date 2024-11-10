@@ -16,9 +16,6 @@ export class UserDetailsEntity {
   @Column({ type: String, nullable: true, length: 50 })
   lastName: string | null;
 
-  @Column({ type: 'varchar', length: 20, nullable: true })
-  phoneNumber: string;
-
   @Column({ type: 'text', nullable: true })
   profilePictureUrl: string | null;
 
