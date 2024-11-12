@@ -1,3 +1,4 @@
+import { JwtService } from '@nestjs/jwt';
 import {
   BadRequestException,
   ConflictException,
@@ -21,6 +22,7 @@ export class UserService {
     private userRepository: Repository<UsersEntity>,
     @InjectRepository(UserDetailsEntity)
     private userDetailsEntity: Repository<UserDetailsEntity>,
+    private readonly jwtService: JwtService,
   ) {}
 
   findAll(): Promise<UsersEntity[]> {
@@ -87,13 +89,15 @@ export class UserService {
     }
   }
 
-  async create(signupDto: Partial<UsersEntity>): Promise<UsersEntity> {
+  async create(signupDto: Partial<UsersEntity>): Promise<{ user: Partial<UsersEntity>; jwt: string }> {
     // Check if user already exists
-    const existingUser =
-      (await this.findOneByEmail(signupDto.email)) ||
-      (await this.findOneByUsername(signupDto.username));
-    if (existingUser) {
-      throw new ConflictException('User already exists');
+    const existingUserName =await this.findOneByEmail(signupDto.email);
+      const existingEmail =await this.findOneByUsername(signupDto.username);
+    if (existingUserName) {
+      throw new ConflictException('User Name already exists');
+    }
+    if (existingEmail) {
+      throw new ConflictException('Email already exists');
     }
     const otp = '12345';
     if (signupDto.password) {
@@ -101,11 +105,26 @@ export class UserService {
       signupDto.password = await bcrypt.hash(signupDto.password, salt);
     }
     try {
-      const newUser = await this.userRepository.save({
+      const userProperties = await this.userRepository.save({
         ...signupDto,
         verificationCode: otp,
       });
-      return newUser;
+
+      const user = {
+        id:userProperties.id,
+        email:userProperties.email,
+        username:userProperties.username,
+        isEmailVerified:userProperties.isEmailVerified,
+        isPhoneVerified:userProperties.isPhoneVerified,
+        userRoles:userProperties.userRoles,
+        userType:userProperties.userType,
+      }
+
+      // Generate JWT token
+      const payload = { username: user.username, userId: user.id };
+      const token = this.jwtService.sign(payload);
+
+      return {user, jwt:token };
     } catch (e) {
       throw new BadRequestException('Invalid or expired token');
     }

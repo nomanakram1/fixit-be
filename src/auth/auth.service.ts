@@ -21,18 +21,18 @@ export class AuthService {
   }
 
   async login(user: any) {
-    const payload = { username: user.username, sub: user.id };
+    const payload = { username: user.username, userId: user.id };
     return {
-      access_token: this.jwtService.sign(payload),
+      jwt: this.jwtService.sign(payload),
     };
   }
 
-  async signup(signupDto: SignupDto): Promise<{ message: string }> {
+  async signup(signupDto: SignupDto): Promise<{ user, message: string }> {
     try {
       const user = await this.userService.create(signupDto);
-      return { message: 'User registered successfully.' };
-    } catch (e) {
-      throw new BadRequestException('Invalid or expired token');
+      return {message: 'User registered successfully.', ...user };
+    } catch (error) {
+      throw error
     }
   }
 

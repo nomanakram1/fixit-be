@@ -31,7 +31,7 @@ export class UserController {
   @Post()
   @ApiOperation({ summary: 'Create a new user' })
   @ApiResponse({ status: 201, description: 'User created successfully.' })
-  create(@Body() user: UsersEntity): Promise<UsersEntity> {
+  create(@Body() user: UsersEntity): Promise<{ user: Partial<UsersEntity>; jwt: string }> {
     return this.userService.create(user);
   }
   @UseGuards(AuthGuard('jwt'))

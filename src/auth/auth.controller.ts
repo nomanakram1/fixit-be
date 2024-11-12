@@ -28,7 +28,7 @@ export class AuthController {
     try {
       return await this.authService.signup(signupDto);
     } catch (error) {
-      throw new BadRequestException('User already exists.');
+      throw error
     }
   }
 
