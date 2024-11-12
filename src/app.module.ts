@@ -8,6 +8,7 @@ import { AuthModule } from './auth/auth.module';
 import { UserDetailsModule } from './userDetails/userDetails.module';
 import { RolesModule } from './roles/roles.module';
 import { UserToRolesModule } from './userToRoles/userToRoles.module';
+import { SubscriptionPlanModule } from './subscriptionPlan/subscriptionplan.module';
 
 @Module({
   imports: [
@@ -38,6 +39,7 @@ import { UserToRolesModule } from './userToRoles/userToRoles.module';
     UserDetailsModule,
     RolesModule,
     UserToRolesModule,
+    SubscriptionPlanModule,
   ],
   controllers: [AppController],
   providers: [AppService],
