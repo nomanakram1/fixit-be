@@ -7,12 +7,12 @@ export class UserToRoleEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  // @ManyToOne(() => RoleEntity, role => role.userRoles)
-  @JoinColumn()
+  @ManyToOne(() => RoleEntity, role => role.userRoles)
+  @JoinColumn({ name: 'roleId' })
   role: RoleEntity;
 
   @ManyToOne(() => UsersEntity, user => user.userRoles)
-  @JoinColumn()
+  @JoinColumn({ name: 'userId' })
   user: UsersEntity;
 
   @CreateDateColumn()
