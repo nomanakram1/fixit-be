@@ -8,20 +8,20 @@ export class SubscriptionPlanEntity {
     @Column({ type: 'varchar', length: 100 })
     name: string;
 
-    @Column({ type: 'text' })
-    description: string;
+    @Column({ type: 'text', nullable: true })
+    description: string | null;
 
     @Column({ type: 'float' })
     price: number;
 
-    @Column({ type: 'float' })
-    discountedPrice: number;
+    @Column({ type: 'float', nullable: true })
+    discountedPrice: number | null;
 
     @Column({ type: 'int' })
     duration: number;
 
-    @Column('simple-array')
-    features: string[];
+    @Column('simple-array', { nullable: true })
+    features: string[] | null;
 
     @Column({ type: 'boolean', default: true })
     isActive: boolean;
