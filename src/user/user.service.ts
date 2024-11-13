@@ -11,9 +11,9 @@ import { Repository } from 'typeorm';
 import { UsersEntity } from './entity/user.entity';
 import { UserDetailsEntity } from '../userDetails/entity/userDetails.entity';
 import * as bcrypt from 'bcryptjs';
-import { use } from 'passport';
 import { UpdateUserDto } from './dto/updateUser.dto';
 import { VerifyOtpDto } from './dto/otp.dto';
+import { EmailService } from 'src/Email/email.service';
 
 @Injectable()
 export class UserService {
@@ -23,6 +23,7 @@ export class UserService {
     @InjectRepository(UserDetailsEntity)
     private userDetailsEntity: Repository<UserDetailsEntity>,
     private readonly jwtService: JwtService,
+    private readonly emailService: EmailService
   ) {}
 
   findAll(): Promise<UsersEntity[]> {
@@ -89,6 +90,167 @@ export class UserService {
     }
   }
 
+
+  async emailSending(emailDto: any){
+    try{
+      const htmlTemplate = `<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OTP Verification</title>
+  <style>
+    /* Reset styles */
+    body, table, td, a {
+      text-decoration: none;
+      color: inherit;
+    }
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f4;
+      margin: 0;
+      padding: 0;
+    }
+    .container {
+      width: 100%;
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 20px;
+      background-color: #ffffff;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+    .header {
+      text-align: center;
+      padding-bottom: 20px;
+      font-size: 24px;
+      font-weight: bold;
+      color: #333333;
+    }
+    .content {
+      font-size: 16px;
+      color: #666666;
+      text-align: center;
+      line-height: 1.5;
+    }
+    .otp {
+      font-size: 32px;
+      font-weight: bold;
+      color: #4CAF50;
+      padding: 20px 0;
+    }
+    .footer {
+      text-align: center;
+      padding-top: 20px;
+      font-size: 12px;
+      color: #aaaaaa;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">Verify Your Account</div>
+    <div class="content">
+      <p>Hello,</p>
+      <p>Your One-Time Password (OTP) for verification is:</p>
+      <div class="otp">{{ OTP_CODE }}</div>
+      <p>This OTP is valid for 10 minutes. Please do not share it with anyone.</p>
+    </div>
+    <div class="footer">
+      If you did not request this OTP, please ignore this email.
+    </div>
+  </div>
+</body>
+</html>
+`;
+      const otp = Math.floor(10000 + Math.random() * 90000).toString();
+      const htmlContent = htmlTemplate.replace('{{ OTP_CODE }}', otp);
+      const emailRes = await this.emailService.sendMail(emailDto.email, "subject", otp, htmlContent);
+    }catch(e){
+      throw e
+    }
+  }
+
+  async signUpEmailSending(email,otp){
+    try{
+      const htmlTemplate = `<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OTP Verification</title>
+  <style>
+    /* Reset styles */
+    body, table, td, a {
+      text-decoration: none;
+      color: inherit;
+    }
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f4;
+      margin: 0;
+      padding: 0;
+    }
+    .container {
+      width: 100%;
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 20px;
+      background-color: #ffffff;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+    .header {
+      text-align: center;
+      padding-bottom: 20px;
+      font-size: 24px;
+      font-weight: bold;
+      color: #333333;
+    }
+    .content {
+      font-size: 16px;
+      color: #666666;
+      text-align: center;
+      line-height: 1.5;
+    }
+    .otp {
+      font-size: 32px;
+      font-weight: bold;
+      color: #4CAF50;
+      padding: 20px 0;
+    }
+    .footer {
+      text-align: center;
+      padding-top: 20px;
+      font-size: 12px;
+      color: #aaaaaa;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">Verify Your Account</div>
+    <div class="content">
+      <p>Hello,</p>
+      <p>Your One-Time Password (OTP) for verification is:</p>
+      <div class="otp">{{ OTP_CODE }}</div>
+      <p>This OTP is valid for 10 minutes. Please do not share it with anyone.</p>
+    </div>
+    <div class="footer">
+      If you did not request this OTP, please ignore this email.
+    </div>
+  </div>
+</body>
+</html>
+`;
+      const htmlContent = htmlTemplate.replace('{{ OTP_CODE }}', otp);
+      const emailRes = await this.emailService.sendMail(email, "Fixit OTP", otp, htmlContent);
+    }catch(e){
+      throw e
+    }
+  }
+
+
   async create(signupDto: Partial<UsersEntity>): Promise<{ user: Partial<UsersEntity>; jwt: string }> {
     // Check if user already exists
     const existingUserName =await this.findOneByEmail(signupDto.email);
@@ -99,7 +261,10 @@ export class UserService {
     if (existingEmail) {
       throw new ConflictException('Email already exists');
     }
-    const otp = '12345';
+    const otp = Math.floor(10000 + Math.random() * 90000).toString();
+    //send OTP to Email
+    const emailRes = await this.signUpEmailSending(signupDto.email, otp);
+    
     if (signupDto.password) {
       const salt = await bcrypt.genSalt();
       signupDto.password = await bcrypt.hash(signupDto.password, salt);
