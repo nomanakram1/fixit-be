@@ -8,7 +8,7 @@ import { AuthModule } from './auth/auth.module';
 import { UserDetailsModule } from './userDetails/userDetails.module';
 import { RolesModule } from './roles/roles.module';
 import { UserToRolesModule } from './userToRoles/userToRoles.module';
-import { SubscriptionPlanModule } from './subscriptionPlan/subscriptionPlan.module';
+import { SubscriptionPlanModule } from './subscriptionPlan/subscriptionplan.module';
 
 @Module({
   imports: [
@@ -28,9 +28,9 @@ import { SubscriptionPlanModule } from './subscriptionPlan/subscriptionPlan.modu
         database: configService.get<string>('DB_NAME'),
         autoLoadEntities: true,
         synchronize: false, // Avoid this in production, use migrations instead
-        ssl: {
-          rejectUnauthorized: false, // Set this to false if you encounter SSL certificate issues
-        },
+        // ssl: {
+        //   rejectUnauthorized: false, // Set this to false if you encounter SSL certificate issues
+        // },
       }),
       inject: [ConfigService],
     }),

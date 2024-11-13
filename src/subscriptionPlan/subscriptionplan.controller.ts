@@ -1,6 +1,6 @@
 import { Controller, Get, Post, Put, Delete, Body, Param, HttpException, HttpStatus } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
-import { SubscriptionPlanService } from './subscriptionPlan.service';
+import { SubscriptionPlanService } from './subscriptionplan.service';
 import { SubscriptionPlanEntity } from './entity/subscriptionPlan.entity';
 import { CreateSubscriptionPlanDto, UpdateSubscriptionPlanDto } from './dto/subscriptionPlan.dto';
 
