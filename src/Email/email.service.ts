@@ -21,7 +21,7 @@ export class EmailService {
   async sendMail(to: string, subject: string, text: string, html?: string) {
     try {
       const info = await this.transporter.sendMail({
-        from: 'fixit@mercurysols.org', // Sender address
+        from: process.env.SMTP_USER, // Sender address
         to, // List of recipients
         subject, // Subject line
         text, // Plain text body
