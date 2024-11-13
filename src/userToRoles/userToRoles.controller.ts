@@ -7,11 +7,11 @@ import { CreateUserToRoleDto, UpdateUserToRoleDto } from './dto/userToRoles.dto'
 export class UserToRolesController {
   constructor(private readonly userToRolesService: UserToRolesService) {}
 
-  // // Create a new user-to-role entry
-  // @Post()
-  // async createUserToRole(@Body() createUserToRoleDto: CreateUserToRoleDto): Promise<UserToRoleEntity> {
-  //   return this.userToRolesService.createUserToRole(createUserToRoleDto);
-  // }
+  // Create a new user-to-role entry
+  @Post()
+  async createUserToRole(@Body() createUserToRoleDto: CreateUserToRoleDto): Promise<UserToRoleEntity> {
+    return this.userToRolesService.createUserToRole(createUserToRoleDto);
+  }
 
   // Retrieve all user-to-role entries
   @Get()
