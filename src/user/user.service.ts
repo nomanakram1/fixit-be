@@ -261,7 +261,8 @@ export class UserService {
     if (existingEmail) {
       throw new ConflictException('Email already exists');
     }
-    const otp = Math.floor(10000 + Math.random() * 90000).toString();
+    // const otp = Math.floor(10000 + Math.random() * 90000).toString();
+    const otp = '12345';
     //send OTP to Email
     const emailRes = await this.signUpEmailSending(signupDto.email, otp);
     
