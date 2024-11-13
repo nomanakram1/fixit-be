@@ -8,12 +8,12 @@ export class EmailService {
 
   constructor() {
     this.transporter = nodemailer.createTransport({
-      host: 'mail.mercurysols.org', // Use your SMTP host
-      port: 465,
+      host: process.env.SMTP_HOST, // Use your SMTP host
+      port: process.env.SMTP_PORT,
       secure: true, // true for 465, false for other ports
       auth: {
-        user: 'fixit@mercurysols.org', // Your email username
-        pass: 'MA_Uh;mUCFo#', // Your email password
+        user: process.env.SMTP_USER, // Your email username
+        pass: process.env.SMTP_PASS, // Your email password
       },
     });
   }
