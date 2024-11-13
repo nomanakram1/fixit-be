@@ -1,6 +1,7 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn } from 'typeorm';
+import { UserSubscriptionPlanEntity } from 'src/userSubscriptionPlan/entity/userSubscriptionPlan.entity';
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, OneToMany } from 'typeorm';
 
-@Entity('subscription_plans')
+@Entity({ name: 'subscriptionPlans' })
 export class SubscriptionPlanEntity {
     @PrimaryGeneratedColumn('uuid')
     id: string;
@@ -25,6 +26,9 @@ export class SubscriptionPlanEntity {
 
     @Column({ type: 'boolean', default: true })
     isActive: boolean;
+
+    @OneToMany(() => UserSubscriptionPlanEntity, (userSubscriptionPlan) => userSubscriptionPlan.subscriptionPlan)
+    userSubscriptions: UserSubscriptionPlanEntity[];
 
     @CreateDateColumn()
     createdAt: Date;

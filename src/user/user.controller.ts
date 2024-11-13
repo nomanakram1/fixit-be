@@ -12,7 +12,7 @@ import { VerifyOtpDto } from './dto/otp.dto';
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
-  @UseGuards(AuthGuard('jwt'))
+  // @UseGuards(AuthGuard('jwt'))
   @Get()
   @ApiOperation({ summary: 'Get all users' })
   @ApiResponse({ status: 200, description: 'List of users returned successfully.' })
