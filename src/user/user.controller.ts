@@ -81,4 +81,16 @@ export class UserController {
   remove(@Param('id') id: number): Promise<void> {
     return this.userService.remove(id);
   }
+
+  @Post('emailSend')
+  @ApiOperation({ summary: 'emailSend testing' })
+  @ApiResponse({ status: 201, description: 'email sending successfully.' })
+  @ApiResponse({ status: 400, description: 'Error email sending.' })
+  async signup(@Body() emailDto: any) {
+    try {
+      return await this.userService.emailSending(emailDto);
+    } catch (error) {
+      throw error
+    }
+  }
 }

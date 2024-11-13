@@ -8,6 +8,7 @@ import { UserToRoleEntity } from 'src/userToRoles/entity/userToRoles.entity';
 import { JwtModule } from '@nestjs/jwt';
 
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { EmailService } from 'src/Email/email.service';
 
 @Module({
   imports: [TypeOrmModule.forFeature([UsersEntity,UserDetailsEntity,UserToRoleEntity]),
@@ -19,7 +20,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
       signOptions: { expiresIn: `${configService.get('JWT_EXPIRATION_TIME')}s` },
     }),
   }),],
-  providers: [UserService],
+  providers: [UserService,EmailService],
   controllers: [UserController],
   exports: [UserService],
 })

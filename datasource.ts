@@ -1,9 +1,5 @@
 import { DataSource } from 'typeorm';
 import * as dotenv from 'dotenv';
-import { UserToRoleEntity } from 'src/userToRoles/entity/userToRoles.entity';
-import { RoleEntity } from 'src/roles/entity/roles.entity';
-import { UsersEntity } from 'src/user/entity/user.entity';
-import { UserDetailsEntity } from 'src/userDetails/entity/userDetails.entity';
 
 // dotenv.config({ path: `.env.${process.env.NODE_ENV || 'development'}` });
 dotenv.config({ path: `.env` });
