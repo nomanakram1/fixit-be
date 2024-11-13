@@ -8,7 +8,7 @@ import { AuthModule } from './auth/auth.module';
 import { UserDetailsModule } from './userDetails/userDetails.module';
 import { RolesModule } from './roles/roles.module';
 import { UserToRolesModule } from './userToRoles/userToRoles.module';
-import { SubscriptionPlanModule } from './subscriptionPlan/subscriptionplan.module';
+import { SubscriptionPlanModule } from './subscriptionPlan/subscriptionPlan.module';
 
 @Module({
   imports: [

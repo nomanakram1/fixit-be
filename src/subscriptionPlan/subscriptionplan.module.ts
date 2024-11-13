@@ -2,7 +2,7 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { SubscriptionPlanEntity } from './entity/subscriptionPlan.entity';
 import { SubscriptionPlanService } from './subscriptionPlan.service';
-import { SubscriptionPlanController } from './subscriptionplan.controller';
+import { SubscriptionPlanController } from './subscriptionPlan.controller';
 
 @Module({
     imports: [TypeOrmModule.forFeature([SubscriptionPlanEntity])],
