@@ -28,9 +28,8 @@ import { SubscriptionPlanModule } from './subscriptionPlan/subscriptionplan.modu
         database: configService.get<string>('DB_NAME'),
         autoLoadEntities: true,
         synchronize: false, // Avoid this in production, use migrations instead
-        ssl: {
-          rejectUnauthorized: false, // Set this to false if you encounter SSL certificate issues
-        },
+        ssl:  configService.get<string>('NODE_ENV') === 'production'?  { rejectUnauthorized: false }
+        : undefined,
       }),
       inject: [ConfigService],
     }),

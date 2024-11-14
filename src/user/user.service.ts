@@ -253,8 +253,8 @@ export class UserService {
 
   async create(signupDto: Partial<UsersEntity>): Promise<{ user: Partial<UsersEntity>; jwt: string }> {
     // Check if user already exists
-    const existingUserName =await this.findOneByEmail(signupDto.email);
-      const existingEmail =await this.findOneByUsername(signupDto.username);
+    const  existingEmail =await this.findOneByEmail(signupDto.email);
+    const existingUserName =await this.findOneByUsername(signupDto.username);
     if (existingUserName) {
       throw new ConflictException('User Name already exists');
     }
