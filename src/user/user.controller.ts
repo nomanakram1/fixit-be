@@ -1,5 +1,20 @@
-import { Controller, Get, Post, Body, Param, Delete, UseGuards, Put, Request } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Param,
+  Delete,
+  UseGuards,
+  Put,
+  Request,
+} from '@nestjs/common';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiResponse,
+  ApiBearerAuth,
+} from '@nestjs/swagger';
 import { UserService } from './user.service';
 import { UsersEntity } from './entity/user.entity';
 import { AuthGuard } from '@nestjs/passport';
@@ -15,7 +30,10 @@ export class UserController {
   @UseGuards(AuthGuard('jwt'))
   @Get()
   @ApiOperation({ summary: 'Get all users' })
-  @ApiResponse({ status: 200, description: 'List of users returned successfully.' })
+  @ApiResponse({
+    status: 200,
+    description: 'List of users returned successfully.',
+  })
   findAll(): Promise<UsersEntity[]> {
     return this.userService.findAll();
   }
@@ -31,9 +49,12 @@ export class UserController {
   @Post()
   @ApiOperation({ summary: 'Create a new user' })
   @ApiResponse({ status: 201, description: 'User created successfully.' })
-  create(@Body() user: UsersEntity): Promise<{ user: Partial<UsersEntity>; jwt: string }> {
+  create(
+    @Body() user: UsersEntity,
+  ): Promise<{ user: Partial<UsersEntity>; jwt: string }> {
     return this.userService.create(user);
   }
+
   @UseGuards(AuthGuard('jwt'))
   @Put('updateUser')
   @ApiOperation({ summary: 'Update user information' })
@@ -43,8 +64,8 @@ export class UserController {
     @Request() req,
     @Body() updateUserDto: UpdateUserDto,
   ): Promise<UsersEntity> {
-    updateUserDto.id = req.user.userId;
-    return this.userService.updateUser(updateUserDto);
+    const userId = req.user.userId;
+    return this.userService.updateUser(userId, updateUserDto);
   }
 
   @UseGuards(AuthGuard('jwt'))
@@ -90,7 +111,20 @@ export class UserController {
     try {
       return await this.userService.emailSending(emailDto);
     } catch (error) {
-      throw error
+      throw error;
+    }
+  }
+
+  @Post('phoneOtpSend')
+  @ApiOperation({ summary: 'phoneOtpSend testing' })
+  @ApiResponse({ status: 201, description: 'phone Otp sending successfully.' })
+  @ApiResponse({ status: 400, description: 'Error phone Otp sending.' })
+  async sendOtp(@Body('phoneNumber') phoneNumber: string) {
+    try {
+      await this.userService.sendOtp(phoneNumber);
+      return { message: 'OTP sent successfully' };
+    } catch (error) {
+      throw error;
     }
   }
 }

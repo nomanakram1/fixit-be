@@ -9,6 +9,7 @@ import { JwtModule } from '@nestjs/jwt';
 
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { EmailService } from 'src/Email/email.service';
+import { MobilePhoneOtpService } from 'src/Email/phoneNumberOtp.service';
 
 @Module({
   imports: [TypeOrmModule.forFeature([UsersEntity,UserDetailsEntity,UserToRoleEntity]),
@@ -20,7 +21,7 @@ import { EmailService } from 'src/Email/email.service';
       signOptions: { expiresIn: `${configService.get('JWT_EXPIRATION_TIME')}s` },
     }),
   }),],
-  providers: [UserService,EmailService],
+  providers: [UserService,EmailService,MobilePhoneOtpService],
   controllers: [UserController],
   exports: [UserService],
 })

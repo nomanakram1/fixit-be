@@ -1,4 +1,10 @@
-import { BadRequestException, ConflictException, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
+import {
+  BadRequestException,
+  ConflictException,
+  Injectable,
+  NotFoundException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { UserService } from '../user/user.service';
 import * as bcrypt from 'bcryptjs';
@@ -21,18 +27,18 @@ export class AuthService {
   }
 
   async login(user: any) {
-    const payload = { username: user.username, userId: user.id };
+    const payload = { userName: user.username, userId: user.id };
     return {
       jwt: this.jwtService.sign(payload),
     };
   }
 
-  async signup(signupDto: SignupDto): Promise<{ user, message: string }> {
+  async signup(signupDto: SignupDto): Promise<{ user; message: string }> {
     try {
       const user = await this.userService.create(signupDto);
-      return {message: 'User registered successfully.', ...user };
+      return { message: 'User registered successfully.', ...user };
     } catch (error) {
-      throw error
+      throw error;
     }
   }
 
@@ -42,18 +48,24 @@ export class AuthService {
       throw new NotFoundException('User not found');
     }
 
-    const resetToken = this.jwtService.sign({ sub: user.id }, { expiresIn: '1h' });
+    const resetToken = this.jwtService.sign(
+      { userId: user.id },
+      { expiresIn: '1h' },
+    );
     // Ideally, send this token via email
     console.log(`Password reset token for ${email}: ${resetToken}`);
-    
+
     return { message: 'Password reset link sent successfully.' };
   }
 
-  async resetPassword(token: string, newPassword: string): Promise<{ message: string }> {
+  async resetPassword(
+    token: string,
+    newPassword: string,
+  ): Promise<{ message: string }> {
     try {
       const decoded = this.jwtService.verify(token);
-      const user = await this.userService.findUserById(decoded.sub);
-      
+      const user = await this.userService.findUserById(decoded.userId);
+
       if (!user) {
         throw new NotFoundException('User not found');
       }

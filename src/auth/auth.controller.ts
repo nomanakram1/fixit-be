@@ -1,7 +1,18 @@
-import { BadRequestException, Body, Controller, Post, UnauthorizedException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Body,
+  Controller,
+  Post,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
-import { ForgotPasswordDto, LoginDto, ResetPasswordDto, SignupDto } from './dto/auth.dto';
+import {
+  ForgotPasswordDto,
+  LoginDto,
+  ResetPasswordDto,
+  SignupDto,
+} from './dto/auth.dto';
 
 @ApiTags('auth')
 @Controller('auth')
@@ -13,7 +24,10 @@ export class AuthController {
   @ApiResponse({ status: 200, description: 'Login successful.' })
   @ApiResponse({ status: 401, description: 'Invalid credentials.' })
   async login(@Body() loginDto: LoginDto) {
-    const user = await this.authService.validateUser(loginDto.email, loginDto.password);
+    const user = await this.authService.validateUser(
+      loginDto.email,
+      loginDto.password,
+    );
     if (!user) {
       throw new UnauthorizedException();
     }
@@ -28,13 +42,16 @@ export class AuthController {
     try {
       return await this.authService.signup(signupDto);
     } catch (error) {
-      throw error
+      throw error;
     }
   }
 
   @Post('forgot-password')
   @ApiOperation({ summary: 'Request password reset' })
-  @ApiResponse({ status: 200, description: 'Password reset link sent successfully.' })
+  @ApiResponse({
+    status: 200,
+    description: 'Password reset link sent successfully.',
+  })
   @ApiResponse({ status: 404, description: 'User not found.' })
   async forgotPassword(@Body() forgotPasswordDto: ForgotPasswordDto) {
     return this.authService.forgotPassword(forgotPasswordDto.email);

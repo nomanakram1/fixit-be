@@ -14,6 +14,7 @@ import * as bcrypt from 'bcryptjs';
 import { UpdateUserDto } from './dto/updateUser.dto';
 import { VerifyOtpDto } from './dto/otp.dto';
 import { EmailService } from 'src/Email/email.service';
+import { MobilePhoneOtpService } from 'src/Email/phoneNumberOtp.service';
 
 @Injectable()
 export class UserService {
@@ -23,7 +24,8 @@ export class UserService {
     @InjectRepository(UserDetailsEntity)
     private userDetailsEntity: Repository<UserDetailsEntity>,
     private readonly jwtService: JwtService,
-    private readonly emailService: EmailService
+    private readonly emailService: EmailService,
+    private readonly mobilePhoneOtpService: MobilePhoneOtpService,
   ) {}
 
   findAll(): Promise<UsersEntity[]> {
@@ -36,7 +38,6 @@ export class UserService {
     try {
       const user = await this.userRepository.findOne({
         where: { id },
-        relations: ['details', 'userRoles'],
       });
 
       if (!user) {
@@ -90,9 +91,8 @@ export class UserService {
     }
   }
 
-
-  async emailSending(emailDto: any){
-    try{
+  async emailSending(emailDto: any) {
+    try {
       const htmlTemplate = `<!DOCTYPE html>
 <html>
 <head>
@@ -165,14 +165,19 @@ export class UserService {
 `;
       const otp = Math.floor(10000 + Math.random() * 90000).toString();
       const htmlContent = htmlTemplate.replace('{{ OTP_CODE }}', otp);
-      const emailRes = await this.emailService.sendMail(emailDto.email, "subject", otp, htmlContent);
-    }catch(e){
-      throw e
+      const emailRes = await this.emailService.sendMail(
+        emailDto.email,
+        'subject',
+        otp,
+        htmlContent,
+      );
+    } catch (e) {
+      throw e;
     }
   }
 
-  async signUpEmailSending(email,otp){
-    try{
+  async signUpEmailSending(email, otp) {
+    try {
       const htmlTemplate = `<!DOCTYPE html>
 <html>
 <head>
@@ -244,17 +249,29 @@ export class UserService {
 </html>
 `;
       const htmlContent = htmlTemplate.replace('{{ OTP_CODE }}', otp);
-      const emailRes = await this.emailService.sendMail(email, "Fixit OTP", otp, htmlContent);
-    }catch(e){
-      throw e
+      const emailRes = await this.emailService.sendMail(
+        email,
+        'Fixit OTP',
+        otp,
+        htmlContent,
+      );
+    } catch (e) {
+      throw e;
     }
   }
 
+  async sendOtp(phoneNumber: string): Promise<void> {
+    const otp = Math.floor(10000 + Math.random() * 90000).toString();
+    const otpSent = await this.mobilePhoneOtpService.sendOtp(phoneNumber, otp);
+    return otpSent;
+  }
 
-  async create(signupDto: Partial<UsersEntity>): Promise<{ user: Partial<UsersEntity>; jwt: string }> {
+  async create(
+    signupDto: Partial<UsersEntity>,
+  ): Promise<{ user: Partial<UsersEntity>; jwt: string }> {
     // Check if user already exists
-    const  existingEmail =await this.findOneByEmail(signupDto.email);
-    const existingUserName =await this.findOneByUsername(signupDto.username);
+    const existingEmail = await this.findOneByEmail(signupDto.email);
+    const existingUserName = await this.findOneByUsername(signupDto.username);
     if (existingUserName) {
       throw new ConflictException('User Name already exists');
     }
@@ -264,8 +281,13 @@ export class UserService {
     // const otp = Math.floor(10000 + Math.random() * 90000).toString();
     const otp = '12345';
     //send OTP to Email
-    const emailRes = await this.signUpEmailSending(signupDto.email, otp);
-    
+    if (signupDto.email) {
+      await this.signUpEmailSending(signupDto.email, otp);
+    }
+    // send OTP to phone number
+    if (signupDto.phoneNumber) {
+      await this.mobilePhoneOtpService.sendOtp(signupDto.phoneNumber, otp);
+    }
     if (signupDto.password) {
       const salt = await bcrypt.genSalt();
       signupDto.password = await bcrypt.hash(signupDto.password, salt);
@@ -277,20 +299,20 @@ export class UserService {
       });
 
       const user = {
-        id:userProperties.id,
-        email:userProperties.email,
-        username:userProperties.username,
-        isEmailVerified:userProperties.isEmailVerified,
-        isPhoneVerified:userProperties.isPhoneVerified,
-        userRoles:userProperties.userRoles,
-        userType:userProperties.userType,
-      }
+        id: userProperties.id,
+        email: userProperties.email,
+        username: userProperties.username,
+        isEmailVerified: userProperties.isEmailVerified,
+        isPhoneVerified: userProperties.isPhoneVerified,
+        userRoles: userProperties.userRoles,
+        userType: userProperties.userType,
+      };
 
       // Generate JWT token
       const payload = { username: user.username, userId: user.id };
       const token = this.jwtService.sign(payload);
 
-      return {user, jwt:token };
+      return { user, jwt: token };
     } catch (e) {
       throw new BadRequestException('Invalid or expired token');
     }
@@ -325,9 +347,9 @@ export class UserService {
     }
   }
 
-  async updateUser(updateUserDto: UpdateUserDto): Promise<UsersEntity> {
+  async updateUser(userId, updateUserDto: UpdateUserDto): Promise<UsersEntity> {
     // Find user by ID
-    const user = await this.findUserById(updateUserDto.id);
+    const user = await this.findUserById(userId);
     if (!user) {
       throw new NotFoundException('User not found');
     }
@@ -381,7 +403,6 @@ export class UserService {
     }
   }
 
-
   async verifyOtp(userId: string, verifyOtpDto: VerifyOtpDto): Promise<string> {
     const { otp } = verifyOtpDto;
 
@@ -395,7 +416,10 @@ export class UserService {
       throw new BadRequestException('Invalid OTP');
     }
 
-    if (user.verificationCodeExpiresAt && new Date() > user.verificationCodeExpiresAt) {
+    if (
+      user.verificationCodeExpiresAt &&
+      new Date() > user.verificationCodeExpiresAt
+    ) {
       throw new BadRequestException('OTP has expired');
     }
 
