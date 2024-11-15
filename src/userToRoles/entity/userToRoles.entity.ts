@@ -8,11 +8,11 @@ export class UserToRoleEntity {
   id: string;
 
   @ManyToOne(() => RoleEntity, role => role.userRoles)
-  @JoinColumn({ name: 'roleId' })
+  @JoinColumn({ name: 'id' })
   role: RoleEntity;
 
   @ManyToOne(() => UsersEntity, user => user.userRoles)
-  @JoinColumn({ name: 'userId' })
+  @JoinColumn({ name: 'id' })
   user: UsersEntity;
 
   @CreateDateColumn()

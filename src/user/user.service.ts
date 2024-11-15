@@ -38,6 +38,7 @@ export class UserService {
     try {
       const user = await this.userRepository.findOne({
         where: { id },
+        relations: ['details', 'userRoles'],
       });
 
       if (!user) {
@@ -249,7 +250,7 @@ export class UserService {
 </html>
 `;
       const htmlContent = htmlTemplate.replace('{{ OTP_CODE }}', otp);
-      const emailRes = await this.emailService.sendMail(
+      this.emailService.sendMail(
         email,
         'Fixit OTP',
         otp,
@@ -269,30 +270,31 @@ export class UserService {
   async create(
     signupDto: Partial<UsersEntity>,
   ): Promise<{ user: Partial<UsersEntity>; jwt: string }> {
-    // Check if user already exists
-    const existingEmail = await this.findOneByEmail(signupDto.email);
-    const existingUserName = await this.findOneByUsername(signupDto.username);
-    if (existingUserName) {
-      throw new ConflictException('User Name already exists');
-    }
-    if (existingEmail) {
-      throw new ConflictException('Email already exists');
-    }
-    // const otp = Math.floor(10000 + Math.random() * 90000).toString();
-    const otp = '12345';
-    //send OTP to Email
-    if (signupDto.email) {
-      await this.signUpEmailSending(signupDto.email, otp);
-    }
-    // send OTP to phone number
-    if (signupDto.phoneNumber) {
-      await this.mobilePhoneOtpService.sendOtp(signupDto.phoneNumber, otp);
-    }
-    if (signupDto.password) {
-      const salt = await bcrypt.genSalt();
-      signupDto.password = await bcrypt.hash(signupDto.password, salt);
-    }
     try {
+      // Check if user already exists
+      const existingEmail = await this.findOneByEmail(signupDto.email);
+      const existingUserName = await this.findOneByUsername(signupDto.username);
+      if (existingUserName) {
+        throw new ConflictException('User Name already exists');
+      }
+      if (existingEmail) {
+        throw new ConflictException('Email already exists');
+      }
+      // const otp = Math.floor(10000 + Math.random() * 90000).toString();
+      const otp = '12345';
+      //send OTP to Email
+      if (signupDto.email) {
+        this.signUpEmailSending(signupDto.email, otp);
+      }
+      // send OTP to phone number
+      if (signupDto.phoneNumber) {
+        this.mobilePhoneOtpService.sendOtp(signupDto.phoneNumber, otp);
+      }
+      if (signupDto.password) {
+        const salt = await bcrypt.genSalt();
+        signupDto.password = await bcrypt.hash(signupDto.password, salt);
+      }
+
       const userProperties = await this.userRepository.save({
         ...signupDto,
         verificationCode: otp,
