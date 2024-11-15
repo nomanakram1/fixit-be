@@ -76,7 +76,7 @@ export class UserSubscriptionPlanService {
     async getAllUserSubscriptionPlans(): Promise<UserSubscriptionPlanEntity[]> {
         try {
             return await this.userSubscriptionPlanRepository.find({
-                relations: ['user'], // Include user details in the result
+                relations: ['user', 'subscriptionPlan'],
             });
         } catch (error) {
             throw new InternalServerErrorException('Failed to retrieve all user subscription plans');
