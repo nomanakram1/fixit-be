@@ -1,3 +1,4 @@
+import { UserSubscriptionPlanEntity } from "src/userSubscriptionPlan/entity/userSubscriptionPlan.entity";
 import { AuthProvidersEnum } from "../../auth/enum/auth-providers.enum";
 import { UserDetailsEntity } from "../../userDetails/entity/userDetails.entity";
 import { UserToRoleEntity } from "../../userToRoles/entity/userToRoles.entity";
@@ -69,4 +70,6 @@ export class UsersEntity {
   @JoinColumn()
   details: UserDetailsEntity;
 
+  @OneToMany(() => UserSubscriptionPlanEntity, (userSubscriptionPlan) => userSubscriptionPlan.user)
+  subscriptionPlans: UserSubscriptionPlanEntity[];
 }
