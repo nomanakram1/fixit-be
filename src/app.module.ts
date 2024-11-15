@@ -9,6 +9,7 @@ import { UserDetailsModule } from './userDetails/userDetails.module';
 import { RolesModule } from './roles/roles.module';
 import { UserToRolesModule } from './userToRoles/userToRoles.module';
 import { SubscriptionPlanModule } from './subscriptionPlan/subscriptionplan.module';
+import { UserSubscriptionPlanModule } from './userSubscriptionPlan/usersubscriptionplan.module';
 
 @Module({
   imports: [
@@ -39,6 +40,7 @@ import { SubscriptionPlanModule } from './subscriptionPlan/subscriptionplan.modu
     RolesModule,
     UserToRolesModule,
     SubscriptionPlanModule,
+    UserSubscriptionPlanModule
   ],
   controllers: [AppController],
   providers: [AppService],
