@@ -30,6 +30,7 @@ export class UserService {
 
   findAll(): Promise<UsersEntity[]> {
     return this.userRepository.find({
+      where: { isActive: true },
       relations: ['details', 'userRoles'],
     });
   }
@@ -37,7 +38,7 @@ export class UserService {
   async findUserById(id: string): Promise<UsersEntity> {
     try {
       const user = await this.userRepository.findOne({
-        where: { id },
+        where: { id, isActive: true },
         relations: ['details', 'userRoles'],
       });
 
@@ -54,13 +55,36 @@ export class UserService {
     }
   }
 
-  async remove(id: number): Promise<void> {
-    await this.userRepository.delete(id);
+  async remove(id: string): Promise<void> {
+    try {
+      // Find the user first
+      const user = await this.userRepository.findOne({
+        where: { id },
+        relations: ['details', 'userRoles', 'subscriptionPlans'],
+      });
+
+      if (!user) {
+        throw new NotFoundException(`User with ID ${id} not found`);
+      }
+
+      // Set the user as inactive instead of deleting
+      user.isActive = false;
+
+      // If user has related details, make them inactive as well
+      if (user.details) {
+        user.details.isActive = false;
+        await this.userDetailsEntity.save(user.details);
+      }
+
+      await this.userRepository.save(user);
+    } catch (e) {
+      throw new InternalServerErrorException('Failed to deactivate user');
+    }
   }
 
   async findOneByUsername(username: string): Promise<UsersEntity | undefined> {
     try {
-      const user = await this.userRepository.findOne({ where: { username } });
+      const user = await this.userRepository.findOne({ where: { username, isActive: true } });
       return user;
     } catch (e) {
       throw new BadRequestException('Invalid or expired token');
@@ -69,7 +93,7 @@ export class UserService {
 
   async findOneByEmail(email: string): Promise<UsersEntity | undefined> {
     try {
-      const user = await this.userRepository.findOne({ where: { email } });
+      const user = await this.userRepository.findOne({ where: { email, isActive: true } });
       return user;
     } catch (e) {
       throw new BadRequestException('Invalid or expired token');
@@ -91,7 +115,7 @@ export class UserService {
     try {
       // Fetch user along with related user details
       const user = await this.userRepository.findOne({
-        where: { email },
+        where: { email, isActive: true },
         relations: ['userDetailsEntity'], // Include UserDetailsEntity relationship
       });
 

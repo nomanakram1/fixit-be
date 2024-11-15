@@ -16,6 +16,9 @@ export class UserDetailsEntity {
   @Column({ type: String, nullable: true, length: 50 })
   lastName: string | null;
 
+  @Column({ default: true })
+  isActive: boolean;
+
   @Column({ type: 'text', nullable: true })
   profilePictureUrl: string | null;
 

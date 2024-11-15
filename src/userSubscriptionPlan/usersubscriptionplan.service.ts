@@ -31,7 +31,7 @@ export class UserSubscriptionPlanService {
         try {
             // Fetch the subscription plan using subscriptionPlanId
             const subscriptionPlan = await this.subscriptionPlanRepository.findOne({
-                where: { id: subscriptionPlanId },
+                where: { id: subscriptionPlanId, isActive: true },
             });
 
             if (!subscriptionPlan) {
@@ -39,7 +39,7 @@ export class UserSubscriptionPlanService {
             }
 
             // Fetch the user using userId
-            const user = await this.userRepository.findOne({ where: { id: userId } });
+            const user = await this.userRepository.findOne({ where: { id: userId, isActive: true } });
 
             if (!user) {
                 throw new NotFoundException(`User with ID ${userId} not found`);
@@ -50,6 +50,7 @@ export class UserSubscriptionPlanService {
                 where: {
                     user: { id: userId },
                     subscriptionPlan: { id: subscriptionPlanId },
+                    isActive: true
                 },
             });
 
@@ -59,8 +60,8 @@ export class UserSubscriptionPlanService {
 
             // Create the new subscription plan entry
             const newSubscriptionPlan = this.userSubscriptionPlanRepository.create(createUserSubscriptionPlanDto);
-            newSubscriptionPlan.user = user; 
-            newSubscriptionPlan.subscriptionPlan = subscriptionPlan; 
+            newSubscriptionPlan.user = user;
+            newSubscriptionPlan.subscriptionPlan = subscriptionPlan;
 
             return await this.userSubscriptionPlanRepository.save(newSubscriptionPlan);
         } catch (error) {
@@ -76,6 +77,7 @@ export class UserSubscriptionPlanService {
     async getAllUserSubscriptionPlans(): Promise<UserSubscriptionPlanEntity[]> {
         try {
             return await this.userSubscriptionPlanRepository.find({
+                where: { isActive: true },
                 relations: ['user', 'subscriptionPlan'],
             });
         } catch (error) {
@@ -86,7 +88,7 @@ export class UserSubscriptionPlanService {
     // Get a user subscription plan by ID
     async getUserSubscriptionPlanById(id: string): Promise<UserSubscriptionPlanEntity> {
         try {
-            const subscriptionPlan = await this.userSubscriptionPlanRepository.findOne({ where: { id } });
+            const subscriptionPlan = await this.userSubscriptionPlanRepository.findOne({ where: { id, isActive: true } });
             if (!subscriptionPlan) {
                 throw new NotFoundException(`User subscription plan with ID ${id} not found`);
             }
@@ -121,10 +123,16 @@ export class UserSubscriptionPlanService {
     // Delete a user subscription plan by ID
     async deleteUserSubscriptionPlan(id: string): Promise<void> {
         try {
-            const result = await this.userSubscriptionPlanRepository.delete(id);
-            if (result.affected === 0) {
+            // Find the user subscription plan by ID
+            const userSubscriptionPlan = await this.userSubscriptionPlanRepository.findOne({ where: { id, isActive: true } });
+
+            if (!userSubscriptionPlan) {
                 throw new NotFoundException(`User subscription plan with ID ${id} not found`);
             }
+
+            // Set isActive to false
+            userSubscriptionPlan.isActive = false;
+            await this.userSubscriptionPlanRepository.save(userSubscriptionPlan);
         } catch (error) {
             if (error instanceof NotFoundException) {
                 throw error;
@@ -136,7 +144,7 @@ export class UserSubscriptionPlanService {
     // Get all user subscriptions by user ID
     async getUserSubscriptionsByUserId(userId: string): Promise<UserSubscriptionPlanEntity[]> {
         try {
-            return await this.userSubscriptionPlanRepository.find({ where: { user: { id: userId } } });
+            return await this.userSubscriptionPlanRepository.find({ where: { user: { id: userId, isActive: true } } });
         } catch (error) {
             throw new InternalServerErrorException(`Failed to retrieve subscriptions for user with ID ${userId}`);
         }
