@@ -76,6 +76,15 @@ export class UserService {
     }
   }
 
+  async findOneByPhoneNumber(phoneNumber: string): Promise<UsersEntity | undefined> {
+    try {
+      const user = await this.userRepository.findOne({ where: { phoneNumber } });
+      return user;
+    } catch (e) {
+      throw new BadRequestException('Invalid or expired token');
+    }
+  }
+
   async finduserAndDetailsByEmail(
     email: string,
   ): Promise<UsersEntity | undefined> {
@@ -271,17 +280,28 @@ export class UserService {
     signupDto: Partial<UsersEntity>,
   ): Promise<{ user: Partial<UsersEntity>; jwt: string }> {
     try {
+      let existingEmail;
+      let existingPhoneNumber;
       // Check if user already exists
-      const existingEmail = await this.findOneByEmail(signupDto.email);
+      if(signupDto.email){
+        existingEmail = await this.findOneByEmail(signupDto.email);
+      }
+      if(signupDto.phoneNumber){
+         existingPhoneNumber = await this.findOneByPhoneNumber(signupDto.phoneNumber);
+      }
       const existingUserName = await this.findOneByUsername(signupDto.username);
+      
       if (existingUserName) {
         throw new ConflictException('User Name already exists');
       }
       if (existingEmail) {
         throw new ConflictException('Email already exists');
       }
-      // const otp = Math.floor(10000 + Math.random() * 90000).toString();
-      const otp = '12345';
+      if (existingPhoneNumber) {
+        throw new ConflictException('PhoneNumber already exists');
+      }
+      const otp = Math.floor(10000 + Math.random() * 90000).toString();
+      // const otp = '12345';
       //send OTP to Email
       if (signupDto.email) {
         this.signUpEmailSending(signupDto.email, otp);
@@ -316,7 +336,7 @@ export class UserService {
 
       return { user, jwt: token };
     } catch (e) {
-      throw new BadRequestException('Invalid or expired token');
+      throw e
     }
   }
 

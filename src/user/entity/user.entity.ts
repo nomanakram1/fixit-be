@@ -9,7 +9,7 @@ export class UsersEntity {
   id: string;
 
   @Index()
-  @Column({ type: String, unique: true, length: 100 })
+  @Column({ type: String, unique: true,nullable: true, length: 100 })
   email: string | null;
 
   @Column({ default: false })
@@ -25,6 +25,9 @@ export class UsersEntity {
   @Column({ default: AuthProvidersEnum.email })
   provider: string;
 
+  @Column({ type: 'varchar', nullable: true })
+  providerId: string;
+
   @Column({ type: String, nullable: true })
   socialId?: string | null;
 
@@ -37,7 +40,7 @@ export class UsersEntity {
   @Column({ default: true })
   isActive: boolean;
 
-  @Column({ type: 'varchar', length: 20, nullable: true })
+  @Column({ type: 'varchar', length: 20, unique: true, nullable: true })
   phoneNumber: string;
 
   @Column({ default: false })
