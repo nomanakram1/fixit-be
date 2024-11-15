@@ -31,7 +31,7 @@ export class UserSubscriptionPlanController {
             const subscriptionPlan = await this.userSubscriptionPlanService.createUserSubscriptionPlan(dto);
             return { message: 'User subscription plan created successfully', data: subscriptionPlan };
         } catch (error) {
-            throw new HttpException('Failed to create user subscription plan', HttpStatus.BAD_REQUEST);
+            throw new HttpException(error.message || 'Failed to create user subscription plan', error.status || HttpStatus.BAD_REQUEST);
         }
     }
 

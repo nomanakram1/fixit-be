@@ -99,7 +99,7 @@ export class UserController {
   @ApiOperation({ summary: 'Delete a user by ID' })
   @ApiResponse({ status: 200, description: 'User deleted successfully.' })
   @ApiResponse({ status: 404, description: 'User not found.' })
-  remove(@Param('id') id: number): Promise<void> {
+  remove(@Param('id') id: string): Promise<void> {
     return this.userService.remove(id);
   }
 

@@ -12,6 +12,9 @@ export class RoleEntity {
   @Column({ type: 'text', nullable: true })
   description: string;
 
+  @Column({ default: true })
+  isActive: boolean;
+
   @OneToMany(() => UserToRoleEntity, userToRole => userToRole.role)
   // @JoinColumn()
   userRoles: UserToRoleEntity[];

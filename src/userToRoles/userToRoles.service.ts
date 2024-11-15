@@ -27,7 +27,7 @@ export class UserToRolesService {
 
     private readonly userService: UserService,
     private readonly rolesService: RolesService,
-  ) {}
+  ) { }
 
   // Create a new user-to-role entry
   async createUserToRole(
@@ -45,14 +45,14 @@ export class UserToRolesService {
         throw new NotFoundException('Role not found');
       }
 
-      const user = await this.userRepository.findOne({ where: { id: userId } });
+      const user = await this.userRepository.findOne({ where: { id: userId, isActive: true } });
       if (!user) {
         throw new NotFoundException('User not found');
       }
 
       // Check if the user already has the role
       const existingRole = await this.userToRoleRepository.findOne({
-        where: { user: { id: userId }, role: { id: roleId } },
+        where: { user: { id: userId, isActive: true }, role: { id: roleId, isActive: true } },
         relations: ['user', 'role'],
       });
 
@@ -69,13 +69,16 @@ export class UserToRolesService {
 
   // Retrieve all user-to-role entries
   async getAllUserToRoles(): Promise<UserToRoleEntity[]> {
-    return this.userToRoleRepository.find({ relations: ['user', 'role'] });
+    return this.userToRoleRepository.find({
+      where: { isActive: true },
+      relations: ['user', 'role']
+    });
   }
 
   // Retrieve a single user-to-role entry by ID
   async getUserToRoleById(id: string): Promise<UserToRoleEntity> {
     const userToRole = await this.userToRoleRepository.findOne({
-      where: { id },
+      where: { id, isActive: true },
       relations: ['user', 'role'],
     });
     if (!userToRole) {
@@ -110,9 +113,13 @@ export class UserToRolesService {
 
   // Delete a user-to-role entry by ID
   async deleteUserToRole(id: string): Promise<void> {
-    const result = await this.userToRoleRepository.delete(id);
-    if (result.affected === 0) {
+    const userToRole = await this.userToRoleRepository.findOne({ where: { id, isActive: true } });
+
+    if (!userToRole) {
       throw new NotFoundException(`UserToRole entry with ID ${id} not found`);
     }
+
+    userToRole.isActive = false;
+    await this.userToRoleRepository.save(userToRole);
   }
 }

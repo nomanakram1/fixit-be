@@ -14,7 +14,7 @@ export class SubscriptionPlanService {
     constructor(
         @InjectRepository(SubscriptionPlanEntity)
         private readonly subscriptionPlanRepository: Repository<SubscriptionPlanEntity>,
-    ) {}
+    ) { }
 
     // Create a new subscription plan
     async createSubscriptionPlan(
@@ -24,7 +24,7 @@ export class SubscriptionPlanService {
 
         try {
             // Check if a plan with the same name already exists
-            const existingPlan = await this.subscriptionPlanRepository.findOne({ where: { name } });
+            const existingPlan = await this.subscriptionPlanRepository.findOne({ where: { name, isActive: true } });
             if (existingPlan) {
                 throw new ConflictException(`Subscription plan with name ${name} already exists`);
             }
@@ -42,7 +42,9 @@ export class SubscriptionPlanService {
     // Get all subscription plans
     async getAllSubscriptionPlans(): Promise<SubscriptionPlanEntity[]> {
         try {
-            return await this.subscriptionPlanRepository.find();
+            return await this.subscriptionPlanRepository.find({
+                where: { isActive: true }
+            });
         } catch (error) {
             throw new InternalServerErrorException('Failed to retrieve subscription plans');
         }
@@ -51,7 +53,7 @@ export class SubscriptionPlanService {
     // Get a subscription plan by ID
     async getSubscriptionPlanById(id: string): Promise<SubscriptionPlanEntity> {
         try {
-            const subscriptionPlan = await this.subscriptionPlanRepository.findOne({ where: { id } });
+            const subscriptionPlan = await this.subscriptionPlanRepository.findOne({ where: { id, isActive: true } });
             if (!subscriptionPlan) {
                 throw new NotFoundException(`Subscription plan with ID ${id} not found`);
             }
@@ -86,10 +88,16 @@ export class SubscriptionPlanService {
     // Delete a subscription plan by ID
     async deleteSubscriptionPlan(id: string): Promise<void> {
         try {
-            const result = await this.subscriptionPlanRepository.delete(id);
-            if (result.affected === 0) {
+            // Find the subscription plan by ID
+            const subscriptionPlan = await this.subscriptionPlanRepository.findOne({ where: { id, isActive:true } });
+
+            if (!subscriptionPlan) {
                 throw new NotFoundException(`Subscription plan with ID ${id} not found`);
             }
+
+            // Set isActive to false
+            subscriptionPlan.isActive = false;
+            await this.subscriptionPlanRepository.save(subscriptionPlan);
         } catch (error) {
             if (error instanceof NotFoundException) {
                 throw error;

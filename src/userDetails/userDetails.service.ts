@@ -10,7 +10,7 @@ export class UserDetailsService {
   constructor(
     @InjectRepository(UserDetailsEntity)
     private readonly userDetailsRepository: Repository<UserDetailsEntity>,
-  ) {}
+  ) { }
 
   async createUserDetails(createUserDetailsDto: CreateUserDetailsDto): Promise<UserDetailsEntity> {
     const userDetails = this.userDetailsRepository.create(createUserDetailsDto);
@@ -18,11 +18,13 @@ export class UserDetailsService {
   }
 
   async getAllUserDetails(): Promise<UserDetailsEntity[]> {
-    return this.userDetailsRepository.find();
+    return this.userDetailsRepository.find({
+      where: { isActive: true }
+    });
   }
 
   async getUserDetailsById(id: string): Promise<UserDetailsEntity> {
-    const userDetails = await this.userDetailsRepository.findOne({ where: { id } });
+    const userDetails = await this.userDetailsRepository.findOne({ where: { id, isActive: true } });
     if (!userDetails) {
       throw new NotFoundException(`User details with ID ${id} not found`);
     }
@@ -36,9 +38,16 @@ export class UserDetailsService {
   }
 
   async deleteUserDetails(id: string): Promise<void> {
-    const result = await this.userDetailsRepository.delete(id);
-    if (result.affected === 0) {
+    // Find the user details by ID
+    const userDetails = await this.userDetailsRepository.findOne({ where: { id, isActive: true } });
+
+    if (!userDetails) {
       throw new NotFoundException(`User details with ID ${id} not found`);
     }
+
+    // Set isActive to false instead of deleting the record
+    userDetails.isActive = false;
+    await this.userDetailsRepository.save(userDetails);
   }
+
 }

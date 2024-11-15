@@ -17,11 +17,11 @@ export class UserSubscriptionPlanEntity {
     id: string;
 
     @ManyToOne(() => UsersEntity, (user) => user.subscriptionPlans)
-    @JoinColumn({ name: 'userId' })
+    @JoinColumn({ name: 'id' })
     user: UsersEntity;
 
     @ManyToOne(() => SubscriptionPlanEntity, (subscription) => subscription.userSubscriptions)
-    @JoinColumn({ name: 'subscriptionPlanId' })
+    @JoinColumn({ name: 'id' })
     subscriptionPlan: SubscriptionPlanEntity;
 
     @Column({ type: 'date' })
@@ -32,6 +32,9 @@ export class UserSubscriptionPlanEntity {
 
     @Column({ type: 'enum', enum: SubscriptionStatus, default: SubscriptionStatus.ACTIVE })
     status: SubscriptionStatus;
+
+    @Column({ default: true })
+    isActive: boolean;
 
     @CreateDateColumn()
     createdAt: Date;

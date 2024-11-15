@@ -15,6 +15,9 @@ export class UserToRoleEntity {
   @JoinColumn({ name: 'id' })
   user: UsersEntity;
 
+  @Column({ default: true })
+  isActive: boolean;
+
   @CreateDateColumn()
   assignedAt: Date;
 }
