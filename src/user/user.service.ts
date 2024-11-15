@@ -300,7 +300,7 @@ export class UserService {
       if (existingPhoneNumber) {
         throw new ConflictException('PhoneNumber already exists');
       }
-      const otp = Math.floor(10000 + Math.random() * 90000).toString();
+      let otp = Math.floor(10000 + Math.random() * 90000).toString();
       // const otp = '12345';
       //send OTP to Email
       if (signupDto.email) {
@@ -308,6 +308,7 @@ export class UserService {
       }
       // send OTP to phone number
       if (signupDto.phoneNumber) {
+        otp = '12345'
         this.mobilePhoneOtpService.sendOtp(signupDto.phoneNumber, otp);
       }
       if (signupDto.password) {
